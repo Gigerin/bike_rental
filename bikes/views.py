@@ -1,27 +1,34 @@
 from rest_framework import generics, status
+from rest_framework.decorators import api_view, permission_classes
+
 from .models import Bike
 from .serializers import BikeSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-class AvailableBikesListView(generics.ListAPIView):
-    queryset = Bike.objects.filter(status='available')
-    serializer_class = BikeSerializer
+@api_view(['GET'])
+def available_bikes(request):
+    bikes = Bike.objects.filter(status='available')
+    serializer = BikeSerializer(bikes, many=True)
+    return Response(serializer.data)
 
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def rent_bike(request, pk):
+    try:
+        bike = Bike.objects.get(pk=pk)
+    except Bike.DoesNotExist:
+        return Response({"error": "Bike not found."}, status=status.HTTP_404_NOT_FOUND)
 
-class RentBikeView(generics.UpdateAPIView):
-    queryset = Bike.objects.all()
-    serializer_class = BikeSerializer
-    permission_classes = [IsAuthenticated]
+    if bike.status != 'available':
+        return Response({"error": "Bike is already rented."}, status=status.HTTP_400_BAD_REQUEST)
 
-    def update(self, request, *args, **kwargs):
-        bike = self.get_object()
-        if bike.status != 'available':
-            return Response({"error": "Bike is already rented."}, status=status.HTTP_400_BAD_REQUEST)
+    data = request.data
+    data['status'] = 'rented'
+    data['user'] = request.user.id
 
-        bike.status = 'rented'
-        bike.user = request.user
-        bike.rented_until = request.data.get('rented_until')
-        bike.save()
-
-        return Response(BikeSerializer(bike).data)
+    serializer = BikeSerializer(bike, data=data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

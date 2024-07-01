@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import AvailableBikesListView, RentBikeView
+from .views import available_bikes, rent_bike
 
 urlpatterns = [
-    path('available/', AvailableBikesListView.as_view(), name='available_bikes'),
-    path('rent/<int:pk>/', RentBikeView.as_view(), name='rent_bike'),
+    path('available/', available_bikes, name='available_bikes'),
+    path('rent/<int:pk>/', rent_bike, name='rent_bike'),
 ]
