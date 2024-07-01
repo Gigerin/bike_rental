@@ -7,7 +7,6 @@ PASSWORD = 'gigeriniscool123'
 def get_token(email, password):
     url = f'{API_BASE_URL}/token/'
     response = requests.post(url, data={'email': email, 'password': password})
-    print(response.json())
     response.raise_for_status()
     return response.json()['access']
 
@@ -18,19 +17,27 @@ def get_available_bikes(token):
     response.raise_for_status()
     return response.json()
 
-def rent_bike(token, bike_id, rented_until):
+def rent_bike(token, bike_id, rented_from, rented_until):
     url = f'{API_BASE_URL}/bikes/rent/{bike_id}/'
     headers = {'Authorization': f'Bearer {token}'}
-    data = {'rented_until': rented_until}
+    print(token)
+    data = {'rented_from': rented_from, 'rented_until': rented_until}
     response = requests.put(url, json=data, headers=headers)
     response.raise_for_status()
+    return response.json()
+
+def return_bike(token, bike_id):
+    url = f'{API_BASE_URL}/bikes/return/{bike_id}/'
+    headers = {'Authorization': f'Bearer {token}'}
+    response = requests.put(url, headers=headers)
+    response.raise_for_status()
+    print(response.json())
     return response.json()
 
 def main():
     try:
         token = get_token(EMAIL, PASSWORD)
         available_bikes = get_available_bikes(token)
-        
         if not available_bikes:
             print("No bikes available for rent.")
             return
@@ -38,10 +45,14 @@ def main():
         # Предположим, мы арендуем первый доступный велосипед
         bike_to_rent = available_bikes[0]
         bike_id = bike_to_rent['id']
-        rented_until = '2024-12-31T23:59:59Z'  # Установите нужную дату и время
+        rented_until = '2024-08-01T20:57:12.114502'
+        rented_from = '2024-08-01T19:57:12.114502'
 
-        rent_response = rent_bike(token, bike_id, rented_until)
+        rent_response = rent_bike(token, bike_id, rented_from, rented_until)
         print(f"Bike rented successfully: {rent_response}")
+        return_response = return_bike(token, bike_id)
+        print(f"Bike returned successfully: {return_response}")
+
     
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")

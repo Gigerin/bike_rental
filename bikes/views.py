@@ -18,14 +18,36 @@ def rent_bike(request, pk):
     try:
         bike = Bike.objects.get(pk=pk)
     except Bike.DoesNotExist:
-        return Response({"error": "Bike not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Велосипед не найден."}, status=status.HTTP_404_NOT_FOUND)
 
     if bike.status != 'available':
-        return Response({"error": "Bike is already rented."}, status=status.HTTP_400_BAD_REQUEST)
-
+        return Response({"error": "Велосипед уже арендован."}, status=status.HTTP_400_BAD_REQUEST)
+    #TODO добавить проверку на то что у пользователя уже есть велосипед
     data = request.data
     data['status'] = 'rented'
     data['user'] = request.user.id
+
+    serializer = BikeSerializer(bike, data=data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def return_bike(request, pk):
+    try:
+        bike = Bike.objects.get(pk=pk)
+    except Bike.DoesNotExist:
+        return Response({"error": "Велосипед не найден."}, status=status.HTTP_404_NOT_FOUND)
+
+    if bike.status != 'rented':
+        return Response({"error": "Велосипед уже свободен."}, status=status.HTTP_400_BAD_REQUEST)
+    data = request.data
+    data['status'] = 'available'
+    data['user'] = None
+    data['rented_until'] = None
+    data['rented_from'] = None
 
     serializer = BikeSerializer(bike, data=data, partial=True)
     if serializer.is_valid():
