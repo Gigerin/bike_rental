@@ -35,6 +35,14 @@ def return_bike(token, bike_id):
     print(response.json())
     return response.json()
 
+def get_rent_history(token):
+    url = f'{API_BASE_URL}/bikes/get_rent_history'
+    headers = {'Authorization': f'Bearer {token}'}
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+
 def main():
     try:
         token = get_token(EMAIL, PASSWORD)
@@ -53,7 +61,8 @@ def main():
         print(f"Bike rented successfully: {rent_response}")
         return_response = return_bike(token, bike_id)
         print(f"Bike returned successfully: {return_response}")
-
+        history_response = get_rent_history(token)
+        print(f"Bike History: {history_response}")
     
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")

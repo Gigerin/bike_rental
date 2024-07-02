@@ -11,6 +11,15 @@ def available_bikes(request):
     bikes = Bike.objects.filter(status='available')
     serializer = BikeSerializer(bikes, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_rent_history(request):
+    user = request.user
+    bikes = RentalEvent.objects.filter(user=user)
+    serializer = RentalEventSerializer(bikes, many=True)
+    return Response(serializer.data)
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def rent_bike(request, pk):
