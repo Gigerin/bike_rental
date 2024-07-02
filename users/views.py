@@ -11,9 +11,3 @@ class UserRegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = UserSerializer
-
-class RegisterTemplateView(TemplateView):
-    template_name = "users/register.html"
-
-class LoginTemplateView(TemplateView):
-    template_name = "users/login.html"
