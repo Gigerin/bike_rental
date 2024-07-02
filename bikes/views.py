@@ -35,14 +35,12 @@ def rent_bike(request, pk):
     data['status'] = 'rented'
     data['user'] = request.user.id
 
-    # Update bike status
     bike_serializer = BikeSerializer(bike, data=data, partial=True)
     if bike_serializer.is_valid():
         bike_serializer.save()
     else:
         return Response(bike_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # Create rental event
     rental_event_data = {
         'bike': bike.id,
         'user': request.user.id,
