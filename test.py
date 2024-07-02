@@ -8,6 +8,7 @@ def get_token(email, password):
     url = f'{API_BASE_URL}/token/'
     response = requests.post(url, data={'email': email, 'password': password})
     response.raise_for_status()
+    print(response.json())
     return response.json()['access']
 
 def get_available_bikes(token):
@@ -20,9 +21,9 @@ def get_available_bikes(token):
 def rent_bike(token, bike_id, rented_from, rented_until):
     url = f'{API_BASE_URL}/bikes/rent/{bike_id}/'
     headers = {'Authorization': f'Bearer {token}'}
-    print(token)
     data = {'rented_from': rented_from, 'rented_until': rented_until}
     response = requests.put(url, json=data, headers=headers)
+    print(response.json())
     response.raise_for_status()
     return response.json()
 

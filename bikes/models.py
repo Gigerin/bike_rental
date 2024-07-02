@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db import models
 from bike_rental import settings
+from users.models import User
 
 
 class Bike(models.Model):
@@ -33,3 +34,14 @@ class Bike(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class RentalEvent(models.Model):
+    bike = models.ForeignKey(Bike, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rented_from = models.DateTimeField()
+    rented_until = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.email} rented {self.bike.id} from {self.rented_from} to {self.rented_until}'

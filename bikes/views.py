@@ -1,8 +1,8 @@
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 
-from .models import Bike
-from .serializers import BikeSerializer
+from .models import Bike, RentalEvent
+from .serializers import BikeSerializer, RentalEventSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
@@ -11,7 +11,6 @@ def available_bikes(request):
     bikes = Bike.objects.filter(status='available')
     serializer = BikeSerializer(bikes, many=True)
     return Response(serializer.data)
-
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def rent_bike(request, pk):
@@ -22,16 +21,32 @@ def rent_bike(request, pk):
 
     if bike.status != 'available':
         return Response({"error": "Велосипед уже арендован."}, status=status.HTTP_400_BAD_REQUEST)
-    #TODO добавить проверку на то что у пользователя уже есть велосипед
-    data = request.data
+
+    data = request.data.copy()
     data['status'] = 'rented'
     data['user'] = request.user.id
 
-    serializer = BikeSerializer(bike, data=data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Update bike status
+    bike_serializer = BikeSerializer(bike, data=data, partial=True)
+    if bike_serializer.is_valid():
+        bike_serializer.save()
+    else:
+        return Response(bike_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Create rental event
+    rental_event_data = {
+        'bike': bike.id,
+        'user': request.user.id,
+        'rented_from': data.get('rented_from'),
+        'rented_until': data.get('rented_until')
+    }
+    rental_event_serializer = RentalEventSerializer(data=rental_event_data)
+    if rental_event_serializer.is_valid():
+        rental_event_serializer.save()
+    else:
+        return Response(rental_event_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(bike_serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
