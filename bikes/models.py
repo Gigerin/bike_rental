@@ -13,7 +13,7 @@ class Bike(models.Model):
 
     name = models.CharField(max_length=255)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='available')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     rented_from = models.DateTimeField(null=True, blank=True)
     rented_until = models.DateTimeField(null=True, blank=True) #TODO добавить проверку что аренда не в прошлом
 

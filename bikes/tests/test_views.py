@@ -27,6 +27,17 @@ def test_rent_bike_success(auth_client, available_bike, future_date):
     assert response.data['status'] == 'rented'
 
 @pytest.mark.django_db
+def test_rent_bike_one_user_two_bikes(auth_client, custom_available_bike,  future_date):
+    bike1 = custom_available_bike(name="Ariel")
+    bike2 = custom_available_bike(name="Stels")
+    response = auth_client.put(f'/api/bikes/rent/{bike1.id}/', future_date)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data['status'] == 'rented'
+    response = auth_client.put(f'/api/bikes/rent/{bike2.id}/', future_date)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data['error'] == 'Арендовать можно только один велосипед.'
+
+@pytest.mark.django_db
 def test_rent_bike_not_found(auth_client, available_bike, future_date):
     response = auth_client.put('/api/bikes/rent/999/', future_date)
     assert response.status_code == status.HTTP_404_NOT_FOUND

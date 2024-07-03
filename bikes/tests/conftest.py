@@ -32,6 +32,11 @@ def auth_client(api_client, user):
     return api_client
 
 @pytest.fixture
+def custom_available_bike(db):
+    def create_bike(name="Ariel", status='available'):
+        return Bike.objects.create(name=name, status=status)
+    return create_bike
+@pytest.fixture
 def available_bike(db):
     bike = Bike.objects.create(status='available')
     return bike

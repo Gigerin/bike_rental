@@ -8,7 +8,6 @@ def get_token(email, password):
     url = f'{API_BASE_URL}/token/'
     response = requests.post(url, data={'email': email, 'password': password})
     response.raise_for_status()
-    print(response.json())
     return response.json()['access']
 
 def get_available_bikes(token):
@@ -23,7 +22,6 @@ def rent_bike(token, bike_id, rented_from, rented_until):
     headers = {'Authorization': f'Bearer {token}'}
     data = {'rented_from': rented_from, 'rented_until': rented_until}
     response = requests.put(url, json=data, headers=headers)
-    print(response.json())
     response.raise_for_status()
     return response.json()
 
@@ -32,7 +30,6 @@ def return_bike(token, bike_id):
     headers = {'Authorization': f'Bearer {token}'}
     response = requests.put(url, headers=headers)
     response.raise_for_status()
-    print(response.json())
     return response.json()
 
 def get_rent_history(token):
@@ -63,6 +60,8 @@ def main():
         print(f"Bike returned successfully: {return_response}")
         history_response = get_rent_history(token)
         print(f"Bike History: {history_response}")
+        rent_response = rent_bike(token, 1000, rented_from, rented_until)
+        print(f"Bike rented successfully: {rent_response}")
     
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
