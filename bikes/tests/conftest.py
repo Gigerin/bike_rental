@@ -33,19 +33,19 @@ def auth_client(api_client, user):
 
 @pytest.fixture
 def custom_available_bike(db):
-    def create_bike(name="Ariel", status='available'):
-        return Bike.objects.create(name=name, status=status)
+    def create_bike(name="Ariel", status='available', price=1000):
+        return Bike.objects.create(name=name, status=status,price=price)
     return create_bike
 @pytest.fixture
 def available_bike(db):
-    bike = Bike.objects.create(status='available')
+    bike = Bike.objects.create(status='available',price=1000)
     return bike
 
 @pytest.fixture
 def rented_bike(db, user):
     rented_from = datetime.strptime('2025-08-01T20:57:12.114502', '%Y-%m-%dT%H:%M:%S.%f')
     rented_until = datetime.strptime('2025-10-01T20:57:12.114502', '%Y-%m-%dT%H:%M:%S.%f')
-    bike = Bike.objects.create(status='rented', user=user, rented_from=rented_from, rented_until=rented_until)
+    bike = Bike.objects.create(status='rented', user=user, price=1000,rented_from=rented_from, rented_until=rented_until)
     return bike
 
 @pytest.fixture

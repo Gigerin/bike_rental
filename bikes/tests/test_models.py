@@ -41,14 +41,14 @@ def test_bike_status_available_with_rental_dates():
 
 @pytest.mark.django_db
 def test_bike_save_successful():
-    bike = Bike(name='Test Bike', status='available')
+    bike = Bike(name='Test Bike', status='available', price=1000)
     bike.save()
     assert Bike.objects.count() == 1
 
 @pytest.mark.django_db
 def test_rental_event_creation():
     user = User.objects.create(email='test@example.com', password='testpass')
-    bike = Bike.objects.create(name='Test Bike', status='available')
+    bike = Bike.objects.create(name='Test Bike', status='available', price=1000)
     rented_from = timezone.now()
     rented_until = timezone.now() + timedelta(days=1)
     rental_event = RentalEvent.objects.create(bike=bike, user=user, rented_from=rented_from, rented_until=rented_until)

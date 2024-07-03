@@ -14,6 +14,7 @@ class Bike(models.Model):
     name = models.CharField(max_length=255)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='available')
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
     rented_from = models.DateTimeField(null=True, blank=True)
     rented_until = models.DateTimeField(null=True, blank=True) #TODO добавить проверку что аренда не в прошлом
 
@@ -30,6 +31,10 @@ class Bike(models.Model):
                 raise ValueError("Невозможно арендовать без арендатора.")
             if self.rented_until or self.rented_from:
                 raise ValueError("Необходимо удалить время аренды.")
+        if not self.price:
+            raise ValueError("Укажите цену.")
+        if self.price <= 0:
+            raise ValueError("Цена должна быть больше нуля.")
         super().save(*args, **kwargs)
 
     def __str__(self):

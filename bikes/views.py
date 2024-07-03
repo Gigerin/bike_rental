@@ -36,6 +36,9 @@ def rent_bike(request, pk):
     if bike.status != 'available':
         return Response({"error": "Велосипед уже арендован."}, status=status.HTTP_400_BAD_REQUEST)
 
+    if Bike.objects.filter(user_id=request.user.id).exists():
+        return Response({"error": "Арендовать можно только один велосипед."}, status=status.HTTP_400_BAD_REQUEST)
+
     data = request.data.copy()
     data['status'] = 'rented'
     data['user'] = request.user.id
