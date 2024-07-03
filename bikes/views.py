@@ -1,3 +1,8 @@
+from datetime import timezone, datetime
+import pytz
+from dateutil import parser
+from django.utils.dateparse import parse_datetime
+from bikes.utils import cast_to_aware
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 
@@ -34,7 +39,6 @@ def rent_bike(request, pk):
     data = request.data.copy()
     data['status'] = 'rented'
     data['user'] = request.user.id
-
     bike_serializer = BikeSerializer(bike, data=data, partial=True)
     if bike_serializer.is_valid():
         bike_serializer.save()
