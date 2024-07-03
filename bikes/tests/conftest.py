@@ -1,9 +1,8 @@
 # conftest.py
 from datetime import datetime, timezone
-
+from dateutil import parser
 import pytest
 from rest_framework.test import APIClient
-
 from users.models import User
 from bikes.models import Bike, RentalEvent
 
@@ -16,13 +15,13 @@ def user(db):
 
 @pytest.fixture
 def api_client():
-    return (APIClient())
+    return APIClient()
 
 @pytest.fixture
 def future_date():
     rent_data = {
-        'rented_from': datetime.strptime('2025-08-01T20:57:12.114502', '%Y-%m-%dT%H:%M:%S.%f'),
-        'rented_until': datetime.strptime('2025-10-01T20:57:12.114502', '%Y-%m-%dT%H:%M:%S.%f')
+        'rented_from': parser.isoparse('2025-08-01T20:57:12.114502Z'),
+        'rented_until': parser.isoparse('2025-10-01T20:57:12.114502Z')
     }
     return rent_data
 
