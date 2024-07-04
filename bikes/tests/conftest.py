@@ -43,13 +43,12 @@ def available_bike(db):
 @pytest.fixture
 def rented_bike(db, user):
     rented_from = datetime.strptime('2025-08-01T20:57:12.114502', '%Y-%m-%dT%H:%M:%S.%f')
-    rented_until = datetime.strptime('2025-10-01T20:57:12.114502', '%Y-%m-%dT%H:%M:%S.%f')
-    bike = Bike.objects.create(status='rented', user=user, price=1000,rented_from=rented_from, rented_until=rented_until)
+    bike = Bike.objects.create(status='rented', user=user, price=1000,rented_from=rented_from)
     return bike
 
 @pytest.fixture
 def rental_event(db, user, rented_bike):
     rented_from = datetime.strptime('2025-08-01T20:57:12.114502', '%Y-%m-%dT%H:%M:%S.%f')
     rented_until = datetime.strptime('2025-10-01T20:57:12.114502', '%Y-%m-%dT%H:%M:%S.%f')
-    rental_event = RentalEvent.objects.create(user=user, bike=rented_bike, rented_from=rented_from, rented_until=rented_until)
+    rental_event = RentalEvent.objects.create(user=user, bike=rented_bike, rented_from=rented_from, rented_until=rented_until, total_price=1000)
     return rental_event

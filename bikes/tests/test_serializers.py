@@ -16,7 +16,6 @@ def test_bike_serializer(rented_bike, user):
     assert Decimal(data['price']) == Decimal(rented_bike.price)
     assert data['user'] == rented_bike.user.id
     assert data['rented_from'].rstrip('Z') == rented_bike.rented_from.isoformat()
-    assert data['rented_until'].rstrip('Z') == rented_bike.rented_until.isoformat()
 
 @pytest.mark.django_db
 def test_rental_event_serializer(rental_event):
@@ -36,7 +35,6 @@ def test_bike_serializer_create(custom_available_bike, user, future_date):
         'price': 1200,
         'user': user.id,
         'rented_from': future_date['rented_from'],
-        'rented_until': future_date['rented_until'],
     }
     print(bike_data)
     serializer = BikeSerializer(data=bike_data)
@@ -54,7 +52,6 @@ def test_bike_serializer_create(custom_available_bike, user, future_date):
     assert bike.price == bike_data['price']
     assert bike.user == user
     assert bike.rented_from == future_date['rented_from']
-    assert bike.rented_until == future_date['rented_until']
 
 @pytest.mark.django_db
 def test_rental_event_serializer_create(available_bike, user, future_date):
@@ -63,6 +60,7 @@ def test_rental_event_serializer_create(available_bike, user, future_date):
         'user': user.id,
         'rented_from': future_date['rented_from'],
         'rented_until': future_date['rented_until'],
+        'total_price': 1000
     }
 
     serializer = RentalEventSerializer(data=rental_event_data)

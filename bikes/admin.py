@@ -4,7 +4,7 @@ from .models import Bike, RentalEvent
 
 @admin.register(Bike)
 class BikeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'status', 'user', 'rented_until')
+    list_display = ('name', 'status', 'user')
     list_filter = ('status',)
     search_fields = ('name', 'user__email')
 

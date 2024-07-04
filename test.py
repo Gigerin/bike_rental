@@ -17,10 +17,10 @@ def get_available_bikes(token):
     response.raise_for_status()
     return response.json()
 
-def rent_bike(token, bike_id, rented_from, rented_until):
+def rent_bike(token, bike_id,  price):
     url = f'{API_BASE_URL}/bikes/rent/{bike_id}/'
     headers = {'Authorization': f'Bearer {token}'}
-    data = {'rented_from': rented_from, 'rented_until': rented_until}
+    data = { 'price':price}
     response = requests.put(url, json=data, headers=headers)
     response.raise_for_status()
     return response.json()
@@ -53,15 +53,13 @@ def main():
         bike_id = bike_to_rent['id']
         rented_until = '2024-08-01T20:57:12.114502'
         rented_from = '2024-08-01T19:57:12.114502'
-
-        rent_response = rent_bike(token, bike_id, rented_from, rented_until)
+        price = 1000
+        rent_response = rent_bike(token, bike_id, 1000)
         print(f"Bike rented successfully: {rent_response}")
         return_response = return_bike(token, bike_id)
         print(f"Bike returned successfully: {return_response}")
         history_response = get_rent_history(token)
-        print(f"Bike History: {history_response}")
-        rent_response = rent_bike(token, 1000, rented_from, rented_until)
-        print(f"Bike rented successfully: {rent_response}")
+        print(f"Last Rent: {history_response[-1]}")
     
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")

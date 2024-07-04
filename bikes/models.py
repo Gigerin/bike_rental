@@ -16,20 +16,20 @@ class Bike(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
     rented_from = models.DateTimeField(null=True, blank=True)
-    rented_until = models.DateTimeField(null=True, blank=True) #TODO добавить проверку что аренда не в прошлом
 
     def save(self, *args, **kwargs):
         if self.status == 'rented':
-            if not self.rented_from or not self.rented_until:
-                raise ValueError("Не указана даты аренды.")
-            if self.rented_until < self.rented_from:
-                raise ValueError("Дата начала аренды позже даты окончания.")
-            if is_in_past(self.rented_until):
-                raise ValueError("Дата конца аренды в прошлом.")
+            if not self.user:
+                raise ValueError('Невозможно арендовать велосипед без арендатора')
+            if self.rented_from:
+                if is_in_past(self.rented_from):
+                    raise ValueError('Время аренды в прошлом.')
+            else:
+                self.rented_from = datetime.now(timezone.utc)
         if self.status == 'available':
             if self.user:
-                raise ValueError("Невозможно арендовать без арендатора.")
-            if self.rented_until or self.rented_from:
+                raise ValueError("Невозможно создать свободный велосипед с пользователем.")
+            if self.rented_from:
                 raise ValueError("Необходимо удалить время аренды.")
         if not self.price:
             raise ValueError("Укажите цену.")
@@ -47,6 +47,7 @@ class RentalEvent(models.Model):
     rented_from = models.DateTimeField()
     rented_until = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+    total_price = models.DecimalField(max_digits=20, decimal_places=2)
 
     def __str__(self):
         return f'{self.user.email} rented {self.bike.id} from {self.rented_from} to {self.rented_until}'
