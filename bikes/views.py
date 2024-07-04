@@ -6,6 +6,7 @@ from bikes.utils import cast_to_aware, calculate_total_price
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 
+from bikes.tasks import send_bill
 from .models import Bike, RentalEvent
 from .serializers import BikeSerializer, RentalEventSerializer
 from rest_framework.response import Response
@@ -47,6 +48,15 @@ def rent_bike(request, pk):
         bike_serializer.save()
     else:
         return Response(bike_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(bike_serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def return_bike(request, pk):
+    try:
+        bike = Bike.objects.get(pk=pk)
+    except Bike.DoesNotExist:
+        return Response({"error": "Велосипед не найден."}, status=status.HTTP_404_NOT_FOUND)
 
     rental_event_data = {
         'bike': bike.id,
@@ -58,18 +68,9 @@ def rent_bike(request, pk):
     rental_event_serializer = RentalEventSerializer(data=rental_event_data)
     if rental_event_serializer.is_valid():
         rental_event_serializer.save()
+        send_bill.delay(rental_event_serializer.data)
     else:
         return Response(rental_event_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    return Response(bike_serializer.data, status=status.HTTP_200_OK)
-
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def return_bike(request, pk):
-    try:
-        bike = Bike.objects.get(pk=pk)
-    except Bike.DoesNotExist:
-        return Response({"error": "Велосипед не найден."}, status=status.HTTP_404_NOT_FOUND)
 
     if bike.status != 'rented':
         return Response({"error": "Велосипед уже свободен."}, status=status.HTTP_400_BAD_REQUEST)
@@ -81,5 +82,4 @@ def return_bike(request, pk):
     serializer = BikeSerializer(bike, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_200_OK)
