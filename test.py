@@ -2,7 +2,7 @@ import requests
 
 API_BASE_URL = "http://127.0.0.1:8000/api"
 EMAIL = "codenamedelta228@gmail.com"
-PASSWORD = "gigeriniscool123"
+PASSWORD = "80808080"
 
 
 def get_token(email, password):
