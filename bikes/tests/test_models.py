@@ -31,7 +31,7 @@ def test_bike_save_successful():
 
 
 @pytest.mark.django_db
-def test_rental_event_creation():  # TODO поменять на чек функции
+def test_rental_event_creation():
     user = User.objects.create(email="test@example.com", password="testpass")
     bike = Bike.objects.create(name="Test Bike", status="available", price=1000)
     rented_from = timezone.now()

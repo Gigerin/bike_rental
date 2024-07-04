@@ -1,0 +1,4 @@
+/bikes/migrations/0001_initial.py
+/users/migrations/0001_initial.py
+/bikes/migrations/0002_bike_rented_until_bike_user.py
+/bike_rental/settings.py
