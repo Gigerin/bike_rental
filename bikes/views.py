@@ -2,7 +2,7 @@ from datetime import timezone, datetime
 import pytz
 from dateutil import parser
 from django.utils.dateparse import parse_datetime
-from bikes.utils import cast_to_aware
+from bikes.utils import cast_to_aware, calculate_total_price
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 
@@ -51,8 +51,9 @@ def rent_bike(request, pk):
     rental_event_data = {
         'bike': bike.id,
         'user': request.user.id,
-        'rented_from': data.get('rented_from'),
-        'rented_until': data.get('rented_until')
+        'rented_from': bike.rented_from,
+        'rented_until': datetime.now(timezone.utc),
+        'total_price': calculate_total_price(bike)
     }
     rental_event_serializer = RentalEventSerializer(data=rental_event_data)
     if rental_event_serializer.is_valid():
@@ -75,7 +76,6 @@ def return_bike(request, pk):
     data = request.data
     data['status'] = 'available'
     data['user'] = None
-    data['rented_until'] = None
     data['rented_from'] = None
 
     serializer = BikeSerializer(bike, data=data, partial=True)
