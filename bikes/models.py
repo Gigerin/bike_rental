@@ -7,28 +7,34 @@ from users.models import User
 
 class Bike(models.Model):
     STATUS_CHOICES = [
-        ('available', 'Available'),
-        ('rented', 'Rented'),
+        ("available", "Available"),
+        ("rented", "Rented"),
     ]
 
     name = models.CharField(max_length=255)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='available')
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default="available"
+    )
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
     rented_from = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.status == 'rented':
+        if self.status == "rented":
             if not self.user:
-                raise ValueError('Невозможно арендовать велосипед без арендатора')
+                raise ValueError("Невозможно арендовать велосипед без арендатора")
             if self.rented_from:
                 if is_in_past(self.rented_from):
-                    raise ValueError('Время аренды в прошлом.')
+                    raise ValueError("Время аренды в прошлом.")
             else:
                 self.rented_from = datetime.now(timezone.utc)
-        if self.status == 'available':
+        if self.status == "available":
             if self.user:
-                raise ValueError("Невозможно создать свободный велосипед с пользователем.")
+                raise ValueError(
+                    "Невозможно создать свободный велосипед с пользователем."
+                )
             if self.rented_from:
                 raise ValueError("Необходимо удалить время аренды.")
         if not self.price:
@@ -50,4 +56,4 @@ class RentalEvent(models.Model):
     total_price = models.DecimalField(max_digits=20, decimal_places=2)
 
     def __str__(self):
-        return f'{self.user.email} rented {self.bike.id} from {self.rented_from} to {self.rented_until}'
+        return f"{self.user.email} rented {self.bike.id} from {self.rented_from} to {self.rented_until}"

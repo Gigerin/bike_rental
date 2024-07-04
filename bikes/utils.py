@@ -22,7 +22,9 @@ def cast_to_aware(dt_string):
     except Exception as e:
         return f"Error: {e}"
 
+
 def is_in_past(input_datetime):
+    "Проверка в прошлом время или нет"
     current_datetime = datetime.now(timezone.utc)
 
     if input_datetime.tzinfo is None:
@@ -30,7 +32,9 @@ def is_in_past(input_datetime):
 
     return input_datetime < current_datetime
 
+
 def calculate_total_price(bike):
+    "Считает финальную сумму по часам округляя вверх"
     start_datetime = bike.rented_from
     current_datetime = datetime.now(timezone.utc)
     time_difference = current_datetime - start_datetime

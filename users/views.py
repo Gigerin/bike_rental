@@ -7,6 +7,7 @@ from .serializers import UserSerializer
 
 User = get_user_model()
 
+
 class UserRegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
